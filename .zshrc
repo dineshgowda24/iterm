@@ -89,7 +89,6 @@ plugins=(
 	zsh-syntax-highlighting 
      	zsh-autosuggestions
 	last-working-dir
-	web-search
 	extract
 	history
 	sudo
@@ -99,7 +98,9 @@ plugins=(
 	sublime
 	aliases
 	emoji 
-        aws )
+        aws
+	copypath
+	jsontools )
 
 source $ZSH/oh-my-zsh.sh
 source $HOME/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
