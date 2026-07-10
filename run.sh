@@ -17,6 +17,11 @@ brew install --cask postman
 brew install --cask firefox
 brew install asdf
 brew install git
+brew install tmux
+
+# Symlink tmux config into $HOME so edits in the repo are picked up live.
+# -f overwrites any existing ~/.tmux.conf. Adjust if you want to preserve one.
+ln -sf "$(cd "$(dirname "$0")" && pwd)/.tmux.conf" ~/.tmux.conf
 
 
 brew install rvm
