@@ -87,7 +87,7 @@ plugins=(
 	python 
 	golang 
 	zsh-syntax-highlighting 
-     	zsh-autosuggestions
+    zsh-autosuggestions
 	last-working-dir
 	extract
 	history
@@ -98,12 +98,17 @@ plugins=(
 	sublime
 	aliases
 	emoji 
-        aws
+    aws
 	copypath
 	jsontools )
 
 source $ZSH/oh-my-zsh.sh
-source $HOME/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# zsh plugins installed via brew (not under $ZSH_CUSTOM/plugins/, so the
+# plugins=() array above can't autoload them — source them explicitly).
+source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+export ZSH_HIGHLIGHT_HIGHLIGHTERS_DIR=/opt/homebrew/share/zsh-syntax-highlighting/highlighters
+source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 
 # user configuration

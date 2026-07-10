@@ -33,12 +33,11 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 brew install zsh-syntax-highlighting
 brew install zsh-autosuggestions
 
-# how to enable all the plugins
-
-echo  'source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh' >> ~/.zshrc
-echo  'export ZSH_HIGHLIGHT_HIGHLIGHTERS_DIR=/opt/homebrew/share/zsh-syntax-highlighting/highlighters' >> ~/.zshrc
-echo  'source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh' >> ~/.zshrc
-
-
 git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh}/themes/powerlevel10k
-echo 'source ~/powerlevel10k/powerlevel10k.zsh-theme' >>~/.zshrc
+
+# Symlink zsh dotfiles from this repo into $HOME. The committed .zshrc already
+# sources brew-installed plugins and enables the powerlevel10k theme, so no
+# echo-appended lines are needed. -f overwrites any existing files.
+REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
+ln -sf "$REPO_DIR/.zshrc"    ~/.zshrc
+ln -sf "$REPO_DIR/.p10k.zsh" ~/.p10k.zsh
