@@ -41,3 +41,4 @@ git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
 ln -sf "$REPO_DIR/.zshrc"    ~/.zshrc
 ln -sf "$REPO_DIR/.p10k.zsh" ~/.p10k.zsh
+ln -sf "$REPO_DIR/.psqlrc"   ~/.psqlrc

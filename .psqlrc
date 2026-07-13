@@ -1,0 +1,66 @@
+-- ~/.psqlrc — psql client config
+-- Read at startup by the local psql binary. Server never sees this.
+
+-- Silence "settings applied" noise while this file is being read.
+\set QUIET 1
+
+-- Show NULL as ¤ so it's distinguishable from empty string.
+\pset null '¤'
+
+-- Nicer table borders + unicode line-drawing.
+\pset linestyle unicode
+\pset border 2
+
+-- Auto-switch to expanded (\x) view when a row is too wide for the terminal.
+\x auto
+
+-- Print query execution time after every statement.
+\timing
+
+-- Tab-complete SQL keywords in UPPERCASE.
+\set COMP_KEYWORD_CASE upper
+
+-- Separate history file per database, dedupe consecutive entries, larger buffer.
+\set HISTFILE ~/.psql_history- :DBNAME
+\set HISTCONTROL ignoredups
+\set HISTSIZE 5000
+
+-- Show error codes and source position on failed statements.
+\set VERBOSITY verbose
+
+-- Prompt: user@host:port/db, marker changes in transactions and on error.
+\set PROMPT1 '%[%033[1;34m%]%n@%m:%>%[%033[0m%]/%[%033[1;33m%]%/%[%033[0m%]%R%# '
+\set PROMPT2 '[more] %R > '
+
+-- Friendlier aliases. psql's :variable substitution only works inside SQL,
+-- not for meta-commands like \l or \c — so these are SQL equivalents.
+--   :list  → databases + size + owner
+--   :desc  → columns of the table named in :'t' (usage: \set t users, then :desc)
+--
+-- Things you still type directly (meta-commands, not aliasable):
+--   \c mydb           switch database
+--   \i ~/.psqlrc      reload this file
+--   \d+ users         full describe (indexes, constraints, FKs)
+\set list 'SELECT datname AS database, pg_catalog.pg_get_userbyid(datdba) AS owner, pg_catalog.pg_encoding_to_char(encoding) AS encoding, pg_size_pretty(pg_database_size(datname)) AS size FROM pg_database WHERE datistemplate = false ORDER BY 1;'
+\set desc 'SELECT column_name, data_type, is_nullable, column_default FROM information_schema.columns WHERE table_name = :''t'' ORDER BY ordinal_position;'
+
+-- Approximation of MySQL's SHOW CREATE TABLE. Postgres has no built-in for
+-- this; :desc / \d+ is the interactive equivalent, and `pg_dump -st TBL DB`
+-- from the shell gives the real DDL. This query gets you close inside psql.
+-- Usage: \set t users   (or any table name), then  :showcreate
+\set showcreate 'SELECT ''CREATE TABLE '' || quote_ident(n.nspname) || ''.'' || quote_ident(c.relname) || E''\n(\n'' || string_agg(''    '' || quote_ident(a.attname) || '' '' || pg_catalog.format_type(a.atttypid, a.atttypmod) || coalesce('' DEFAULT '' || pg_get_expr(ad.adbin, ad.adrelid), '''') || CASE WHEN a.attnotnull THEN '' NOT NULL'' ELSE '''' END, E'',\n'' ORDER BY a.attnum) || E''\n);'' AS ddl FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace JOIN pg_attribute a ON a.attrelid = c.oid LEFT JOIN pg_attrdef ad ON ad.adrelid = c.oid AND ad.adnum = a.attnum WHERE c.relname = :''t'' AND a.attnum > 0 AND NOT a.attisdropped GROUP BY n.nspname, c.relname;'
+
+-- Shortcut queries. Run with a leading colon, e.g.  :conns
+\set version         'SELECT version();'
+\set uptime          'SELECT now() - pg_postmaster_start_time() AS uptime;'
+\set settings        'SELECT name, setting, unit FROM pg_settings WHERE source != ''default'' ORDER BY name;'
+\set conns           'SELECT pid, usename, application_name, client_addr, state, wait_event_type, wait_event, query_start, left(query, 60) AS query FROM pg_stat_activity WHERE pid != pg_backend_pid() ORDER BY query_start;'
+\set slow            'SELECT pid, now() - query_start AS runtime, state, wait_event, left(query, 100) AS query FROM pg_stat_activity WHERE state = ''active'' AND pid != pg_backend_pid() ORDER BY runtime DESC;'
+\set locks           'SELECT blocked.pid AS blocked_pid, blocking.pid AS blocking_pid, blocked.usename AS blocked_user, blocking.usename AS blocking_user, left(blocked.query, 60) AS blocked_query, left(blocking.query, 60) AS blocking_query FROM pg_stat_activity blocked JOIN pg_stat_activity blocking ON blocking.pid = ANY(pg_blocking_pids(blocked.pid));'
+\set tables          'SELECT schemaname, relname AS table, pg_size_pretty(pg_total_relation_size(relid)) AS total_size, pg_size_pretty(pg_relation_size(relid)) AS table_size, n_live_tup AS row_estimate FROM pg_stat_user_tables ORDER BY pg_total_relation_size(relid) DESC LIMIT 30;'
+\set indexes         'SELECT schemaname, relname AS table, indexrelname AS index, pg_size_pretty(pg_relation_size(indexrelid)) AS size, idx_scan AS scans FROM pg_stat_user_indexes ORDER BY pg_relation_size(indexrelid) DESC LIMIT 30;'
+\set unused_indexes  'SELECT schemaname, relname AS table, indexrelname AS index, pg_size_pretty(pg_relation_size(indexrelid)) AS size FROM pg_stat_user_indexes WHERE idx_scan = 0 ORDER BY pg_relation_size(indexrelid) DESC;'
+\set cache_hit       'SELECT sum(heap_blks_read) AS heap_read, sum(heap_blks_hit) AS heap_hit, round(sum(heap_blks_hit) * 100.0 / nullif(sum(heap_blks_hit) + sum(heap_blks_read), 0), 2) AS ratio FROM pg_statio_user_tables;'
+
+-- Re-enable feedback after the file finishes loading.
+\set QUIET 0
