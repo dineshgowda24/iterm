@@ -20,7 +20,8 @@ plugins=(
 	history
 	sudo
 	aliases
-	last-working-dir)
+	last-working-dir
+	colored-man-pages)
 
 source $ZSH/oh-my-zsh.sh
 
