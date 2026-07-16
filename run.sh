@@ -5,7 +5,6 @@ echo "Installing brew..."
 
 brew install autoconf automake libtool
 brew install --cask iterm2
-brew install --cask krisp
 brew install --cask visual-studio-code
 brew install --cask obsidian
 brew install --cask alfred
@@ -22,12 +21,6 @@ brew install exa
 brew install thefuck
 brew install fzf
 brew install z
-
-# Symlink tmux config into $HOME so edits in the repo are picked up live.
-# -f overwrites any existing ~/.tmux.conf. Adjust if you want to preserve one.
-ln -sf "$(cd "$(dirname "$0")" && pwd)/.tmux.conf" ~/.tmux.conf
-
-
 brew install rvm
 rvm install 2.7.5
 rvm install 3.0.0
@@ -42,10 +35,10 @@ git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$
 # fzf key bindings and completion
 $(brew --prefix)/opt/fzf/install --all --no-bash --no-fish
 
-# Symlink zsh dotfiles from this repo into $HOME. The committed .zshrc already
-# sources brew-installed plugins and enables the powerlevel10k theme, so no
-# echo-appended lines are needed. -f overwrites any existing files.
+# Symlink dotfiles from this repo into $HOME.
+# -f overwrites any existing files. Edits in the repo are picked up live.
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
 ln -sf "$REPO_DIR/.zshrc"    ~/.zshrc
 ln -sf "$REPO_DIR/.p10k.zsh" ~/.p10k.zsh
 ln -sf "$REPO_DIR/.psqlrc"   ~/.psqlrc
+ln -sf "$REPO_DIR/.tmux.conf" ~/.tmux.conf
