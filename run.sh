@@ -18,6 +18,10 @@ brew install --cask firefox
 brew install asdf
 brew install git
 brew install tmux
+brew install exa
+brew install thefuck
+brew install fzf
+brew install z
 
 # Symlink tmux config into $HOME so edits in the repo are picked up live.
 # -f overwrites any existing ~/.tmux.conf. Adjust if you want to preserve one.
@@ -34,6 +38,9 @@ brew install zsh-syntax-highlighting
 brew install zsh-autosuggestions
 
 git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh}/themes/powerlevel10k
+
+# fzf key bindings and completion
+$(brew --prefix)/opt/fzf/install --all --no-bash --no-fish
 
 # Symlink zsh dotfiles from this repo into $HOME. The committed .zshrc already
 # sources brew-installed plugins and enables the powerlevel10k theme, so no
